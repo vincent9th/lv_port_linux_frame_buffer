@@ -10,6 +10,7 @@ BIN = demo
 
 #Collect the files to compile
 MAINSRC = ./main.c
+MAINSRC += ./lv_port_indev.c
 
 include $(LVGL_DIR)/lvgl/lvgl.mk
 include $(LVGL_DIR)/lv_drivers/lv_drivers.mk

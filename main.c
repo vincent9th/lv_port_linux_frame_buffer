@@ -30,6 +30,8 @@ int main(void)
     disp_drv.flush_cb = fbdev_flush;
     lv_disp_drv_register(&disp_drv);
 
+    lv_port_indev_init();
+    
     /*Create a Demo*/
     demo_create();
 
