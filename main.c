@@ -1,12 +1,15 @@
 #include "lvgl/lvgl.h"
 #include "lv_drivers/display/fbdev.h"
-#include "lv_examples/lv_apps/demo/demo.h"
+#include "lv_examples/lv_examples.h"
 #include <unistd.h>
 #include <pthread.h>
 #include <time.h>
 #include <sys/time.h>
+#include "lv_drivers/display/monitor.h"
+#include "lv_drivers/indev/mouse.h"
+#include "linux_port_indev.h"
 
-#define DISP_BUF_SIZE (80*LV_HOR_RES_MAX)
+#define DISP_BUF_SIZE (80 * LV_HOR_RES_MAX)
 
 int main(void)
 {
@@ -14,8 +17,11 @@ int main(void)
     lv_init();
 
     /*Linux frame buffer device init*/
+#if USE_MONITOR
+    monitor_init();
+#else
     fbdev_init();
-
+#endif
     /*A small buffer for LittlevGL to draw the screen's content*/
     static lv_color_t buf[DISP_BUF_SIZE];
 
@@ -26,14 +32,18 @@ int main(void)
     /*Initialize and register a display driver*/
     lv_disp_drv_t disp_drv;
     lv_disp_drv_init(&disp_drv);
-    disp_drv.buffer = &disp_buf;
+    disp_drv.buffer   = &disp_buf;
+#if USE_MONITOR
+    disp_drv.flush_cb = monitor_flush;
+#else
     disp_drv.flush_cb = fbdev_flush;
+#endif
     lv_disp_drv_register(&disp_drv);
 
-    lv_port_indev_init();
-    
+    linux_port_indev_init();
+
     /*Create a Demo*/
-    demo_create();
+    lv_demo_widgets();
 
     /*Handle LitlevGL tasks (tickless mode)*/
     while(1) {
@@ -43,7 +53,6 @@ int main(void)
 
     return 0;
 }
-
 
 /*Set in lv_conf.h as `LV_TICK_CUSTOM_SYS_TIME_EXPR`*/
 uint32_t custom_tick_get(void)

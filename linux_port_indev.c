@@ -14,7 +14,7 @@
 /*********************
  *      INCLUDES
  *********************/
-#include "lv_port_indev.h"
+#include "linux_port_indev.h"
 
 /*********************
  *      DEFINES
@@ -71,7 +71,7 @@ static lv_indev_state_t encoder_state;
  *   GLOBAL FUNCTIONS
  **********************/
 
-void lv_port_indev_init(void)
+void linux_port_indev_init(void)
 {
     /* Here you will find example implementation of input devices supported by LittelvGL:
      *  - Touchpad

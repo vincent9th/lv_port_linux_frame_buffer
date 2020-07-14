@@ -35,7 +35,7 @@ extern "C" {
  *      MACROS
  **********************/
 
-void lv_port_indev_init(void);
+void linux_port_indev_init(void);
 
 #ifdef __cplusplus
 } /* extern "C" */
