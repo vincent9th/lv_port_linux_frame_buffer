@@ -46,7 +46,7 @@ all: default
 	@echo "CC $<"
     
 default: $(AOBJS) $(COBJS) $(MAINOBJ)
-	$(CC) -o $(BIN) $(MAINOBJ) $(OBJS) $(LDFLAGS) libSDL2.a
+	$(CC) -o $(BIN) $(MAINOBJ) $(OBJS) $(LDFLAGS)
 
 clean: 
 	rm -f $(BIN) $(AOBJS) $(COBJS) $(MAINOBJ)
