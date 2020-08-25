@@ -1,5 +1,5 @@
 #include "lvgl/lvgl.h"
-#include "lv_drivers/display/fbdev.h"
+#include "hifbdev.h"
 #include "lv_examples/lv_examples.h"
 #include <unistd.h>
 #include <pthread.h>
@@ -13,15 +13,18 @@
 
 int main(void)
 {
+    int r;
     /*LittlevGL init*/
     lv_init();
 
     /*Linux frame buffer device init*/
-#if USE_MONITOR
-    monitor_init();
-#else
-    fbdev_init();
-#endif
+    r = hifbdev_init();
+    if(r < 0)
+    {
+        printf("fbdev_init fail\n");
+        return -1;
+    }
+    
     /*A small buffer for LittlevGL to draw the screen's content*/
     static lv_color_t buf[DISP_BUF_SIZE];
 
@@ -33,11 +36,7 @@ int main(void)
     lv_disp_drv_t disp_drv;
     lv_disp_drv_init(&disp_drv);
     disp_drv.buffer   = &disp_buf;
-#if USE_MONITOR
-    disp_drv.flush_cb = monitor_flush;
-#else
-    disp_drv.flush_cb = fbdev_flush;
-#endif
+    disp_drv.flush_cb = hifbdev_flush;
     lv_disp_drv_register(&disp_drv);
 
     linux_port_indev_init();

@@ -33,10 +33,10 @@ static bool touchpad_read(lv_indev_drv_t * indev_drv, lv_indev_data_t * data);
 static bool touchpad_is_pressed(void);
 static void touchpad_get_xy(lv_coord_t * x, lv_coord_t * y);
 
-static void mouse_init(void);
-static bool mouse_read(lv_indev_drv_t * indev_drv, lv_indev_data_t * data);
-static bool mouse_is_pressed(void);
-static void mouse_get_xy(lv_coord_t * x, lv_coord_t * y);
+static void dev_mouse_init(void);
+static bool dev_mouse_read(lv_indev_drv_t * indev_drv, lv_indev_data_t * data);
+static bool dev_mouse_is_pressed(void);
+static void dev_mouse_get_xy(lv_coord_t * x, lv_coord_t * y);
 
 static void keypad_init(void);
 static bool keypad_read(lv_indev_drv_t * indev_drv, lv_indev_data_t * data);
@@ -105,17 +105,17 @@ void linux_port_indev_init(void)
      * -----------------*/
 
     /*Initialize your touchpad if you have*/
-    mouse_init();
+    dev_mouse_init();
 
     /*Register a mouse input device*/
     lv_indev_drv_init(&indev_drv);
     indev_drv.type = LV_INDEV_TYPE_POINTER;
-    indev_drv.read_cb = mouse_read;
+    indev_drv.read_cb = dev_mouse_read;
     indev_mouse = lv_indev_drv_register(&indev_drv);
 
     /*Set cursor. For simplicity set a HOME symbol now.*/
     lv_obj_t * mouse_cursor = lv_img_create(lv_disp_get_scr_act(NULL), NULL);
-    lv_img_set_src(mouse_cursor, LV_SYMBOL_HOME);
+    lv_img_set_src(mouse_cursor, LV_SYMBOL_CLOSE);
     lv_indev_set_cursor(indev_mouse, mouse_cursor);
 
     /*------------------
@@ -239,9 +239,11 @@ static void touchpad_get_xy(lv_coord_t * x, lv_coord_t * y)
  * Mouse
  * -----------------*/
 static int mouse_fd = -1;
+static lv_coord_t xx = 0, yy = 0;
+static char pressed = 0;
 
 /* Initialize your mouse */
-static void mouse_init(void)
+static void dev_mouse_init(void)
 {
     TAG();
     mouse_fd = open("/dev/input/mice", O_RDWR);
@@ -249,13 +251,13 @@ static void mouse_init(void)
 }
 
 /* Will be called by the library to read the mouse */
-static bool mouse_read(lv_indev_drv_t * indev_drv, lv_indev_data_t * data)
+static bool dev_mouse_read(lv_indev_drv_t * indev_drv, lv_indev_data_t * data)
 {
     /*Get the current x and y coordinates*/
-    mouse_get_xy(&data->point.x, &data->point.y);
+    dev_mouse_get_xy(&data->point.x, &data->point.y);
 
     /*Get whether the mouse button is pressed or released*/
-    if(mouse_is_pressed()) {
+    if(dev_mouse_is_pressed()) {
         data->state = LV_INDEV_STATE_PR;
     } else {
         data->state = LV_INDEV_STATE_REL;
@@ -266,16 +268,29 @@ static bool mouse_read(lv_indev_drv_t * indev_drv, lv_indev_data_t * data)
 }
 
 /*Return true is the mouse button is pressed*/
-static bool mouse_is_pressed(void)
+static bool dev_mouse_is_pressed(void)
 {
+    static char pressed_bak = 0;
     /*Your code comes here*/
-
-    return false;
+    if(pressed_bak != pressed)
+    {
+      if(pressed)
+      {
+        printf("press down\n");
+      }
+      else
+      {
+        printf("press up\n");
+      }
+      pressed_bak = pressed;
+    }
+    //printf("pressed_bak:%d\n", pressed_bak);
+    return pressed_bak;
 }
 
+
 /*Get the x and y coordinates if the mouse is pressed*/
-static lv_coord_t xx = 0, yy = 0;
-static void mouse_get_xy(lv_coord_t * x, lv_coord_t * y)
+static void dev_mouse_get_xy(lv_coord_t * x, lv_coord_t * y)
 {
     /*Your code comes here*/
     
@@ -285,25 +300,41 @@ static void mouse_get_xy(lv_coord_t * x, lv_coord_t * y)
     char buf[6];
     if(read(mouse_fd, buf, 6) > 0)
     {
-        //printf("Button type = %d, X = %d, Y = %d, Z = %d\n", (buf[0] & 0x07), buf[1], buf[2], buf[3]);
-        xx += buf[1];
-        yy -= buf[2];
+        lv_coord_t x_offset = (lv_coord_t)buf[1];
+        lv_coord_t y_offset = (lv_coord_t)buf[2];
+#if 1
+        if(x_offset >= 0x80)
+        /*i don't know why in some platform like hisi the val can't convert to negative*/
+        {
+            x_offset |= 0xff00;
+        }
+        if(y_offset >= 0x80)
+        /*i don't know why in some platform like hisi the val can't convert to negative*/
+        {
+            y_offset |= 0xff00;
+        }
+#endif
+        printf("Button type = %d, X = %d, Y = %d, Z = %d\n", (buf[0] & 0x07), (int)x_offset, (int)y_offset, (int)buf[3]);
+        pressed = (buf[0] & 0x07);
+        xx += x_offset;
+        yy -= y_offset;
         if(xx < 0)
         {
             xx = 0;
         }
-        else if(xx > 800)
+        else if(xx > LV_HOR_RES_MAX)
         {
-            xx = 800;
+            xx = LV_HOR_RES_MAX;
         }
         if(yy < 0)
         {
             yy = 0;
         }
-        else if(yy > 600)
+        else if(yy > LV_VER_RES_MAX)
         {
-            yy = 600;
+            yy = LV_VER_RES_MAX;
         }
+        printf("(%d %d)\n", xx, yy);
         (*x) = xx;
         (*y) = yy;
     }
@@ -325,7 +356,7 @@ static bool keypad_read(lv_indev_drv_t * indev_drv, lv_indev_data_t * data)
     static uint32_t last_key = 0;
 
     /*Get the current x and y coordinates*/
-    mouse_get_xy(&data->point.x, &data->point.y);
+    dev_mouse_get_xy(&data->point.x, &data->point.y);
 
     /*Get whether the a key is pressed and save the pressed key*/
     uint32_t act_key = keypad_get_key();

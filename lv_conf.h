@@ -15,23 +15,13 @@
 
 #include <stdint.h>
 
-#define USE_RAW_FRAMEBUFFER
-//#define USE_SDL_DIRECTFB
-//#define USE_MOUSE 1
-#ifdef USE_RAW_FRAMEBUFFER
-#undef USE_MONITOR
-#elif defined (USE_SDL_DIRECTFB)
-#define USE_MONITOR 1
-#define USE_SDL_MOUSE 1
-#endif
-
 /*====================
    Graphical settings
  *====================*/
 
 /* Maximal horizontal and vertical resolution to support by the library.*/
-#define LV_HOR_RES_MAX          (480)
-#define LV_VER_RES_MAX          (320)
+#define LV_HOR_RES_MAX          (800) //(800) //(480)
+#define LV_VER_RES_MAX          (600) //(600) //(320)
 
 /* Color depth:
  * - 1:  1 byte per pixel
@@ -40,6 +30,8 @@
  * - 32: ARGB8888
  */
 #define LV_COLOR_DEPTH     32
+
+#define LV_COLOR_RGB1555 0
 
 /* Swap the 2 bytes of RGB565 color.
  * Useful if the display has a 8 bit interface (e.g. SPI)*/

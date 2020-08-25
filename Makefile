@@ -13,7 +13,9 @@ BIN = demo
 #Collect the files to compile
 USE_SDL := no
 
+#CFLAGS += -D_LIB_
 MAINSRC = ./main.c
+MAINSRC += ./hifbdev.c
 
 include $(LVGL_DIR)/lvgl/lvgl.mk
 include $(LVGL_DIR)/lv_drivers/lv_drivers.mk
@@ -32,6 +34,7 @@ OBJS = $(AOBJS) $(COBJS)
 
 ifeq ($(USE_SDL), no)
 MAINSRC += ./linux_port_indev.c
+OBJS += libhisifb.a libmpi.a libhdmi.a libtde.a libVoiceEngine.a libupvqe.a libdnvqe.a libjpeg.a
 else
 OBJS += libSDL2.a
 #OBJS += libdirectfb.a
