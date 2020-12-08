@@ -40,7 +40,7 @@
 /* 1: Enable screen transparency.
  * Useful for OSD or other overlapping GUIs.
  * Requires `LV_COLOR_DEPTH = 32` colors and the screen's style should be modified: `style.body.opa = ...`*/
-#define LV_COLOR_SCREEN_TRANSP    0
+#define LV_COLOR_SCREEN_TRANSP    1
 
 /*Images pixels with this color will not be drawn (with chroma keying)*/
 #define LV_COLOR_TRANSP    LV_COLOR_LIME         /*LV_COLOR_LIME: pure green*/
@@ -192,7 +192,7 @@ typedef void * lv_fs_drv_user_data_t;
 #define LV_USE_USER_DATA        0
 
 /*1: Show CPU usage and FPS count in the right bottom corner*/
-#define LV_USE_PERF_MONITOR     1
+#define LV_USE_PERF_MONITOR     0
 
 /*========================
  * Image decoder and cache
@@ -278,7 +278,7 @@ typedef void * lv_indev_drv_user_data_t;            /*Type of user data in the i
  * LV_LOG_LEVEL_ERROR       Only critical issue, when the system may fail
  * LV_LOG_LEVEL_NONE        Do not log anything
  */
-#  define LV_LOG_LEVEL    LV_LOG_LEVEL_WARN
+#  define LV_LOG_LEVEL    LV_LOG_LEVEL_TRACE //LV_LOG_LEVEL_WARN
 
 /* 1: Print the log with 'printf';
  * 0: user need to register a callback with `lv_log_register_print_cb`*/
@@ -300,6 +300,8 @@ typedef void * lv_indev_drv_user_data_t;            /*Type of user data in the i
  */
 #define LV_USE_DEBUG        1
 #if LV_USE_DEBUG
+
+#define LV_TAG() printf("%s:%s(%d) ###\n", __FILE__, __func__, __LINE__)
 
 /*Check if the parameter is NULL. (Quite fast) */
 #define LV_USE_ASSERT_NULL      1
