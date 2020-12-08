@@ -113,10 +113,14 @@ void linux_port_indev_init(void)
     indev_drv.read_cb = dev_mouse_read;
     indev_mouse = lv_indev_drv_register(&indev_drv);
 
+    LV_TAG();
     /*Set cursor. For simplicity set a HOME symbol now.*/
     lv_obj_t * mouse_cursor = lv_img_create(lv_disp_get_scr_act(NULL), NULL);
+    LV_TAG();
     lv_img_set_src(mouse_cursor, LV_SYMBOL_CLOSE);
+    LV_TAG();
     lv_indev_set_cursor(indev_mouse, mouse_cursor);
+    LV_TAG();
 
     /*------------------
      * Keypad
@@ -314,7 +318,7 @@ static void dev_mouse_get_xy(lv_coord_t * x, lv_coord_t * y)
             y_offset |= 0xff00;
         }
 #endif
-        printf("Button type = %d, X = %d, Y = %d, Z = %d\n", (buf[0] & 0x07), (int)x_offset, (int)y_offset, (int)buf[3]);
+        //printf("Button type = %d, X = %d, Y = %d, Z = %d\n", (buf[0] & 0x07), (int)x_offset, (int)y_offset, (int)buf[3]);
         pressed = (buf[0] & 0x07);
         xx += x_offset;
         yy -= y_offset;
@@ -334,7 +338,7 @@ static void dev_mouse_get_xy(lv_coord_t * x, lv_coord_t * y)
         {
             yy = LV_VER_RES_MAX;
         }
-        printf("(%d %d)\n", xx, yy);
+        //printf("(%d %d)\n", xx, yy);
         (*x) = xx;
         (*y) = yy;
     }

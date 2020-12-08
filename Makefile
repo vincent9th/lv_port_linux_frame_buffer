@@ -11,7 +11,8 @@ BIN = demo
 
 
 #Collect the files to compile
-USE_SDL := no
+USE_SDL ?= no
+USE_SDL_PATH=/home/vincent/source/gui.class.d/littlevgl/x86_64/
 
 #CFLAGS += -D_LIB_
 MAINSRC = ./main.c
@@ -36,7 +37,9 @@ ifeq ($(USE_SDL), no)
 MAINSRC += ./linux_port_indev.c
 OBJS += libhisifb.a libmpi.a libhdmi.a libtde.a libVoiceEngine.a libupvqe.a libdnvqe.a libjpeg.a
 else
-OBJS += libSDL2.a
+CFLAGS += -DUSE_MONITOR=1
+OBJS += $(USE_SDL_PATH)libSDL2.a
+LDFLAGS += -liconv
 #OBJS += libdirectfb.a
 endif
 

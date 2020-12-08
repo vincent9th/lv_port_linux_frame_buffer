@@ -21,7 +21,7 @@ int main(void)
     r = hifbdev_init();
     if(r < 0)
     {
-        printf("fbdev_init fail\n");
+        printf("hifbdev_init fail\n");
         return -1;
     }
     
@@ -33,6 +33,15 @@ int main(void)
     lv_disp_buf_init(&disp_buf, buf, NULL, DISP_BUF_SIZE);
 
     /*Initialize and register a display driver*/
+#if USE_MONITOR
+    monitor_init();
+    
+    lv_disp_drv_t disp_drv;
+    lv_disp_drv_init(&disp_drv);
+    disp_drv.buffer   = &disp_buf;
+    disp_drv.flush_cb = monitor_flush;
+    lv_disp_drv_register(&disp_drv);
+#else
     lv_disp_drv_t disp_drv;
     lv_disp_drv_init(&disp_drv);
     disp_drv.buffer   = &disp_buf;
@@ -40,6 +49,7 @@ int main(void)
     lv_disp_drv_register(&disp_drv);
 
     linux_port_indev_init();
+#endif
 
     /*Create a Demo*/
     lv_demo_widgets();
